@@ -38,7 +38,7 @@ const float* __attribute__((optimize("O0"))) FPGA::run()
     *api_ = 0x5555;
     while(*api_ == 0x5555);
 
-    return data_;    
+    return data_;
 }
 
 void FPGA::largeMV(const float* large_mat, const float* input,
@@ -48,6 +48,6 @@ void FPGA::largeMV(const float* large_mat, const float* input,
 
     float* vec = this->vector();
     float* mat = this->matrix();
-		
+
     // write down your code here.
 }
