@@ -53,26 +53,34 @@ void FPGA::largeMV(const float* large_mat, const float* input,
     float* vec = this->vector(); // 64
     float* mat = this->matrix(); // 64 * 64
 
+    printf("M: %d, N: %d\n", M, N);
     //making multiple of 64
-    int col_cnt=(int)ceil(M/64);
-    int row_cnt=(int)ceil(N/64);
+    int col_cnt=(int)(ceil(float(M)/64));
+    int row_cnt=(int)(ceil(float(N)/64));
+    printf("col_cnt: %d, row_cnt %d\n", col_cnt, row_cnt);
     int col = col_cnt *64;
     int row = row_cnt *64;
 
     float *new_mat= (float*)malloc(col*row*sizeof(float));
     float *new_vec= (float*)malloc(row*sizeof(float));
+    memset(new_mat, 0, col*row*sizeof(float));
+    memset(new_vec, 0, row*sizeof(float));
     //copy large_mat, input into matrix
     //make all 0 , redundant by malloc??????????
+    
+    /*
     for(int i=0; i<row_cnt*SIZE; i++) {
       for(int j=0; j<col_cnt*SIZE; j++){
         *(new_mat+row_cnt*SIZE*i+j) = 0;
       }
     }
+    */
     for(int i=0; i<M; i++) {
       for(int j=0; j<N; j++){
         *(new_mat+row_cnt*SIZE*i+j) = *(large_mat+M*i +j );
       }
     }
+    /*
     //printf
     printf("print Matrix start \n");
     for(int i=0; i<col_cnt*SIZE; i++) {
@@ -84,20 +92,48 @@ void FPGA::largeMV(const float* large_mat, const float* input,
     }
     printf("print Matrix end \n");
     // write down your code here.
+    // */
     float *temp = (float*)malloc(M*sizeof(float));
     memset(temp, 0, M*sizeof(float));
 
     const float* ptemp;
+
+    printf("col: %d, row: %d\n", col, row);
+    printf("col: %d, row: %d\n", col, row);
+    printf("col: %d, row: %d\n", col, row);
+    printf("test\n");
     for(int i=0; i<col; i=i+SIZE) {
       for(int j=0; j<row; j=j+SIZE){
-        memcpy(mat, new_mat+i*col+j, (SIZE*SIZE)*sizeof(float));
-        memcpy(vec, new_vec+i, (SIZE)*sizeof(float));
+        printf("test");
+        memcpy(mat, &*(new_mat+i*col+j), (SIZE*SIZE)*sizeof(float));
+        memcpy(vec, &*(new_vec+j), (SIZE)*sizeof(float));
         ptemp = this->run();
+        printf("test");
 
-        for(int i=0+SIZE*j; i<SIZE+SIZE*j; i++){
-          *(temp+i) = *(temp+i)+*(ptemp+i);
+        //for(int k=0+SIZE*j; k<SIZE+SIZE*j; k++){
+        for(int k=i; k<i+SIZE; k++){
+          *(temp+k) = *(temp+k)+*(ptemp+k);
+          printf("temp: %f\n", *(temp+k));
+          printf("ptemp: %f\n",*(ptemp+k));
         }
       }
     }
+
+      /*
+    for(int i=0; i<col; i=i+SIZE){
+      for(int j=0; j<row; j=j+SIZE){
+        memcpy(mat, new_mat+i*col+j, (SIZE*SIZE)*sizeof(float));
+        for(int k=0 k<row; k=k+SIZE) {
+        memcpy(vec, new_vec+k, (SIZE)*sizeof(float));
+        ptemp = this->run();
+        for(int l=0+SIZE*j; l<SIZE+SIZE*j; l++){
+          *(temp+l) = *(temp+l)+*(ptemp+l);
+        }
+
+        }
+      }
+    }
+    */
+
     output = temp;
 }
